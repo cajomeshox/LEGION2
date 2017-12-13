@@ -1,95 +1,15 @@
 <?php
-/*
-copyright @ medantechno.com
-Modified by Ilyasa
-2017
-*/
-require_once('./line_class.php');
-
-$channelAccessToken = 'jtqogvL2l3vi0Pp4+3YjRHMn1xFp0H987cTIazVFh2v/Wz6D51rdnW08j6KwTKnSq/UvH99gE73lfGWZGtmd+YmwvD1QjV1z6IbU7rnbfeiWWfSFOwuCEYjeycoBc9lDpmHa5F9GwAMaVR+YyaKZzQdB04t89/1O/w1cDnyilFU='; //Your Channel Access Token
-$channelSecret = '67c7d51383881647ec219a7eb762ee9e';//Your Channel Secret
-
-$client = new LINEBotTiny($channelAccessToken, $channelSecret);
-
-$userId 	= $client->parseEvents()[0]['source']['userId'];
-$replyToken = $client->parseEvents()[0]['replyToken'];
-$message 	= $client->parseEvents()[0]['message'];
-$profil = $client->profil($userId);
-$pesan_datang = $message['text'];
-
-if($message['type']=='sticker')
-{	
-	$balas = array(
-							'UserID' => $profil->userId,	
-                                                        'replyToken' => $replyToken,							
-							'messages' => array(
-								array(
-										'type' => 'text',									
-										'text' => 'I Hate Stickers!.'										
-									
-									)
-							)
-						);
-						
+error_reporting(0);
+if (empty($_GET['pesan'])&&$_GET['pesan']=='') {
+	die('Masukin pesannya bosq');
 }
-else
-$pesan=str_replace(" ", "%20", $pesan_datang);
-$key = '9e2f8795-8ea7-4602-b88b-33d6dd528296'; //API SimSimi
+$pesan=str_replace(" ", "%20", $_GET['pesan']);
+$key = '9e2f8795-8ea7-4602-b88b-33d6dd528296';
 $url = 'http://sandbox.api.simsimi.com/request.p?key='.$key.'&lc=id&ft=1.0&text='.$pesan;
 $json_data = file_get_contents($url);
 $url=json_decode($json_data,1);
-$diterima = $url['response'];
-if($message['type']=='text')
-{
-if($url['result'] == 404)
-	{
-		$balas = array(
-							'UserID' => $profil->userId,	
-                                                        'replyToken' => $replyToken,													
-							'messages' => array(
-								array(
-										'type' => 'text',					
-										'text' => 'I cant chat english:D.'
-									)
-							)
-						);
-				
-	}
-else
-if($url['result'] != 100)
-	{
-		
-		
-		$balas = array(
-							'UserID' => $profil->userId,
-                                                        'replyToken' => $replyToken,														
-							'messages' => array(
-								array(
-										'type' => 'text',					
-										'text' => 'Maaf '.$profil->displayName.' Server Kami Sedang Sibuk Sekarang.'
-									)
-							)
-						);
-				
-	}
-	else{
-		$balas = array(
-							'UserID' => $profil->userId,
-                                                        'replyToken' => $replyToken,														
-							'messages' => array(
-								array(
-										'type' => 'text',					
-										'text' => ''.$diterima.''
-									)
-							)
-						);
-						
-	}
+if($url) {
+	echo $url['response'];
+} else {
+	echo 'Server tidak merespon';
 }
- 
-$result =  json_encode($balas);
-
-file_put_contents('./reply.json',$result);
-
-
-$client->replyMessage($balas);
